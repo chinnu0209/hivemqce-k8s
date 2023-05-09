@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mqtt-broker
+  labels:
+        app: mqtt-broker-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mqtt-broker
+  template:
+    metadata:
+      labels:
+        app: mqtt-broker
+    spec:
+      containers:
+      - name: mqtt-broker-container
+        image: gowthamreddz/hivemq:1.0.3
+        ports:
+          - containerPort: 1884
+        volumeMounts:
+          - mountPath: /var/mounts/file-rbac-config/credentials.xml
+            name: secret 
+            subPath: "credentials.xml"
+          - mountPath: /opt/hivemq/extensions/hivemq-file-rbac-extension/
+            name: config
+            subPath: extension-config.xml
+          - mountPath: /opt/hivemq/extensions/hivemq-file-rbac-extension/
+            name: config2
+            subPath: hivemq-extension.xml
+      volumes:
+        - name: secret
+          secret:
+            secretName: my-secret
+        - name: config
+          configMap:
+            name: config
+        - name: config2
+          configMap:
+            name: config2
+ 
